@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from api.models.todo import Todo
 from fastapi import HTTPException
+from uuid import UUID
 
 from core.database import (
     create_todo,
@@ -19,15 +20,15 @@ async def get_all_tds():
 
 # Route to get a single todo by an id
 @router.get("/todos/{todo_id}")
-async def get_td_by_id():
-    response = await get_todo_by_id()
+async def get_td_by_id(todo_id:UUID):
+    response = await get_todo_by_id(todo_id)
     if response:
         return response
     raise HTTPException(404, f"Page not found")
 
 # Route to create a new todo
 @router.post("/todos")
-async def create_todo(todo: Todo):
+async def create_td(todo: Todo):
     response = await create_todo(todo)
     if response:
         return response
