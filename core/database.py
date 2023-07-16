@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+from api.models.todo import Todo
 
 # Connect to MongoDB
 client = MongoClient("mongodb://localhost:27017")
@@ -7,30 +8,31 @@ db = client["todo_app"]
 collection = db["todos"]
 
 # Create a new todo
-def create_todo(title, description):
-    todo_data = {"title": title, "description": description}
-    result = collection.insert_one(todo_data)
-    return result.inserted_id
+async def create_todo(Todo):
+    todo_data = Todo
+    await collection.insert_one(todo_data)
+    return todo_data
 
 # Get all todos
-def get_all_todos():
-    todos = list(collection.find())
+async def get_all_todos():
+    todos = await list(collection.find())
     return todos
 
 # Get a specific todo by ID
-def get_todo_by_id(todo_id):
-    todo = collection.find_one({"_id": ObjectId(todo_id)})
+async def get_todo_by_id(todo_id):
+    todo = await collection.find_one({"_id": ObjectId(todo_id)})
     return todo
 
 # Update a todo by ID
-def update_todo(todo_id, new_title, new_description):
-    result = collection.update_one(
+async def update_todo(todo_id, new_title, new_description):
+    await collection.update_one(
         {"_id": ObjectId(todo_id)},
         {"$set": {"title": new_title, "description": new_description}}
     )
-    return result.modified_count
+    todo = await collection.find_one({"_id":ObjectId(todo_id)})
+    return todo
 
 # Delete a todo by ID
-def delete_todo(todo_id):
-    result = collection.delete_one({"_id": ObjectId(todo_id)})
-    return result.deleted_count
+async def delete_todo(todo_id):
+    await collection.delete_one({"_id": ObjectId(todo_id)})
+    return True
