@@ -1,9 +1,10 @@
-from pymongo import MongoClient
+import motor.motor_asyncio
 from bson.objectid import ObjectId
 from api.models.todo import Todo
 
 # Connect to MongoDB
-client = MongoClient("mongodb://localhost:27017")
+# URL need to be stored on env variable
+client = motor.motor_asyncio.AsyncIOMotorClient('mongodb://localhost:27017')
 db = client["todo_app"]
 collection = db["todos"]
 
