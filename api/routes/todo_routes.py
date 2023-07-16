@@ -2,36 +2,49 @@ from fastapi import APIRouter
 from api.models.todo import Todo
 from fastapi import HTTPException
 
+from core.database import (
+    create_todo,
+    get_all_todos,
+    get_todo_by_id,
+    update_todo,
+    delete_todo
+)
 router = APIRouter()
 
 # Route to get all todos
 @router.get("/todos")
-def get_all_todos():
-    todos = list(collection.find())
-    return todos
+async def get_all_tds():
+    response = await get_all_todos()
+    return response
+
+# Route to get a single todo by an id
+@router.get("/todos/{todo_id}")
+async def get_td_by_id():
+    response = await get_todo_by_id()
+    if response:
+        return response
+    raise HTTPException(404, f"Page not found")
 
 # Route to create a new todo
 @router.post("/todos")
-def create_todo(todo: Todo):
-    todo_data = {"title": todo.title, "description": todo.description}
-    result = collection.insert_one(todo_data)
-    return {"message": "Todo created successfully", "id": str(result.inserted_id)}
+async def create_todo(todo: Todo):
+    response = await create_todo(todo)
+    if response:
+        return response
+    raise HTTPException(400, f"Something went wrong")
 
 # Route to update an existing todo
 @router.put("/todos/{todo_id}")
-def update_todo(todo_id: str, todo: Todo):
-    todo_data = {"title": todo.title, "description": todo.description}
-    result = collection.update_one({"_id": todo_id}, {"$set": todo_data})
-    if result.modified_count == 1:
-        return {"message": "Todo updated successfully"}
-    else:
-        return {"message": "Todo not found"}
+async def update_td(todo_id: str, todo: Todo):
+    response = await update_todo(todo_id, todo)
+    if response:
+        return response
+    raise HTTPException(404, f"Page not found")
 
 # Route to delete an existing todo
 @router.delete("/todos/{todo_id}")
-def delete_todo(todo_id: str):
-    result = collection.delete_one({"_id": todo_id})
-    if result.deleted_count == 1:
+async def delete_td(todo_id: str):
+    response = await delete_todo(todo_id)
+    if response:
         return {"message": "Todo deleted successfully"}
-    else:
-        return {"message": "Todo not found"}
+    raise HTTPException(404, f"Page not found")
