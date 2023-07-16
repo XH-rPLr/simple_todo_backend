@@ -1,4 +1,7 @@
+import collections
+import json
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 from api.models.todo import Todo
 from fastapi import HTTPException
 from uuid import UUID
@@ -6,22 +9,22 @@ from uuid import UUID
 from core.database import (
     create_todo,
     get_all_todos,
-    get_todo_by_id,
-    update_todo,
+    get_todo_by_title,
+    update_todo_by_title,
     delete_todo
 )
 router = APIRouter()
 
-# Route to get all todos
 @router.get("/todos")
 async def get_all_tds():
     response = await get_all_todos()
-    return response
+    encoded_response = json.dumps(response, ensure_ascii=False).encode('utf-8')
+    return JSONResponse(content=encoded_response.decode('utf-8'))
 
 # Route to get a single todo by an id
 @router.get("/todos/{todo_id}")
-async def get_td_by_id(todo_id:UUID):
-    response = await get_todo_by_id(todo_id)
+async def get_td_by_title(title: str):
+    response = await get_todo_by_title(title)
     if response:
         return response
     raise HTTPException(404, f"Page not found")
@@ -35,17 +38,18 @@ async def create_td(todo: Todo):
     raise HTTPException(400, f"Something went wrong")
 
 # Route to update an existing todo
-@router.put("/todos/{todo_id}")
-async def update_td(todo_id: str, todo: Todo):
-    response = await update_todo(todo_id, todo)
+@router.put("/todos/{title}")
+async def update_todo_route(title: str, todo: Todo):
+    response = await update_todo_by_title(title, todo.title, todo.description)
     if response:
         return response
-    raise HTTPException(404, f"Page not found")
+    raise HTTPException(404, f"Todo not found")
 
 # Route to delete an existing todo
-@router.delete("/todos/{todo_id}")
-async def delete_td(todo_id: str):
-    response = await delete_todo(todo_id)
+@router.delete("/todos/{title}")
+async def delete_td(title: str):
+    """Delete a todo by title."""
+    response = await delete_todo(title)
     if response:
-        return {"message": "Todo deleted successfully"}
+        return response
     raise HTTPException(404, f"Page not found")
