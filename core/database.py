@@ -1,23 +1,14 @@
-import asyncio
 from http.client import HTTPException
 from fastapi.responses import JSONResponse
-import motor.motor_asyncio
 from api.models.todo import Todo
 from bson import ObjectId, Binary
 from pymongo import collection
 import json
+from api.utils import util
+from core import config
 
-# Connect to MongoDB
-# URL need to be stored on env variable
-client = motor.motor_asyncio.AsyncIOMotorClient('mongodb://localhost:27017')
-db = client.TodoList
+db = config.client.TodoList
 collection = db.todo
-
-class CustomJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, ObjectId):
-            return str(obj)
-        return super().default(obj)
 
 # Create a new todo
 async def create_todo(todo: Todo):
@@ -29,7 +20,7 @@ async def create_todo(todo: Todo):
 
     inserted_result = await collection.insert_one(todo_data)
     if inserted_result.acknowledged:
-        return JSONResponse(content=json.dumps(todo_data, cls=CustomJSONEncoder))
+        return JSONResponse(content=json.dumps(todo_data, cls=util.CustomJSONEncoder))
 
 # Get all todos
 async def get_all_todos():
