@@ -1,10 +1,8 @@
-import collections
 import json
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from api.models.todo import Todo
 from fastapi import HTTPException
-from uuid import UUID
 
 from core.database import (
     create_todo,
@@ -21,8 +19,8 @@ async def get_all_tds():
     encoded_response = json.dumps(response, ensure_ascii=False).encode('utf-8')
     return JSONResponse(content=encoded_response.decode('utf-8'))
 
-# Route to get a single todo by an id
-@router.get("/todos/{todo_id}")
+# Route to get a single todo by an title
+@router.get("/todos/{todo_title}")
 async def get_td_by_title(title: str):
     response = await get_todo_by_title(title)
     if response:

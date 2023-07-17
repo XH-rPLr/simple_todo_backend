@@ -1,8 +1,8 @@
 import asyncio
+from http.client import HTTPException
 from fastapi.responses import JSONResponse
 import motor.motor_asyncio
 from api.models.todo import Todo
-from uuid import UUID, uuid4
 from bson import ObjectId, Binary
 from pymongo import collection
 import json
@@ -39,14 +39,14 @@ async def get_all_todos():
         todo["id"] = todo.pop("_id")  # Rename "_id" to "id"
     return todos
 
-# Get a specific todo by ID
+# Get a specific todo by title
 async def get_todo_by_title(title: str):
     todo = await collection.find_one({"title": title})
     if todo:
         todo["_id"] = str(todo["_id"])  # Convert ObjectId to string
     return todo
 
-# Update a todo by ID
+# Update a todo by title
 async def update_todo_by_title(title: str, new_title: str, new_description: str):
     await collection.update_one(
         {"title": title},
@@ -57,7 +57,7 @@ async def update_todo_by_title(title: str, new_title: str, new_description: str)
         todo["_id"] = str(todo["_id"])  # Convert ObjectId to string
     return todo
 
-# Delete a todo by ID
+# Delete a todo by title
 async def delete_todo(title: str):
     delete_result = await collection.delete_one({"title": title})
     if delete_result.deleted_count:

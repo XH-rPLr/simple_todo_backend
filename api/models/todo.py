@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, UUID4
+from pydantic import BaseModel, Field
 from uuid import UUID, uuid4
 # Todo model
 class Todo(BaseModel):
