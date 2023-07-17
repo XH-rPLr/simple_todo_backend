@@ -1,4 +1,5 @@
 from http.client import HTTPException
+from uuid import UUID
 from fastapi.responses import JSONResponse
 from api.models.todo import Todo
 from bson import ObjectId, Binary
@@ -30,26 +31,26 @@ async def get_all_todos():
         todo["id"] = todo.pop("_id")  # Rename "_id" to "id"
     return todos
 
-# Get a specific todo by title
-async def get_todo_by_title(title: str):
-    todo = await collection.find_one({"title": title})
+# Get a specific todo by UUID
+async def get_todo_by_id(todo_id: UUID):
+    todo = await collection.find_one({"id": str(todo_id)})
     if todo:
         todo["_id"] = str(todo["_id"])  # Convert ObjectId to string
     return todo
 
-# Update a todo by title
-async def update_todo_by_title(title: str, new_title: str, new_description: str):
+# Update a todo by UUID
+async def update_todo_by_id(todo_id: UUID, new_title: str, new_description: str):
     await collection.update_one(
-        {"title": title},
+        {"id": str(todo_id)},
         {"$set": {"title": new_title, "description": new_description}}
     )
-    todo = await collection.find_one({"title": title})
+    todo = await collection.find_one({"id": str(todo_id)})
     if todo:
         todo["_id"] = str(todo["_id"])  # Convert ObjectId to string
     return todo
 
-# Delete a todo by title
-async def delete_todo(title: str):
-    delete_result = await collection.delete_one({"title": title})
+# Delete a todo by UUID
+async def delete_todo_by_id(todo_id: UUID):
+    delete_result = await collection.delete_one({"id": str(todo_id)})
     if delete_result.deleted_count:
         return {"message": "Todo deleted successfully"}
